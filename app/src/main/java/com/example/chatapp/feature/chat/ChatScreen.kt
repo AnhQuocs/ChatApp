@@ -1,5 +1,6 @@
 package com.example.chatapp.feature.chat
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,10 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.chatapp.R
 import com.example.chatapp.model.Message
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -53,7 +57,9 @@ fun ChatScreen(navController: NavController, channelId: String) {
 
     val messages = chatViewModel.messages.collectAsState()
 
-    Scaffold {
+    Scaffold(
+        containerColor = Color.Black.copy(alpha = 0.4f)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -84,7 +90,7 @@ fun ChatMessages(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.92f),
+                .fillMaxHeight(0.9f),
             verticalArrangement = Arrangement.Bottom
         ) {
             items(messages) { message ->
@@ -139,7 +145,7 @@ fun ChatMessages(
 @Composable
 fun ChatBubble(message: Message) {
     val isCurrentUser = message.senderId == Firebase.auth.currentUser?.uid
-    val bubbleColor = if (isCurrentUser) Color.Blue else Color.Green
+    val bubbleColor = if (isCurrentUser) Color(0xFF830E7F) else Color(0xFFF1F1F1)
 
     Box(
         modifier = Modifier
@@ -147,17 +153,38 @@ fun ChatBubble(message: Message) {
             .padding(horizontal = 8.dp),
     ) {
         val alignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
+        val shape = if (isCurrentUser) RoundedCornerShape(
+            topStart = 20.dp,
+            bottomStart = 20.dp,
+            topEnd = 6.dp,
+            bottomEnd = 6.dp
+        ) else RoundedCornerShape(
+            topEnd = 20.dp,
+            bottomEnd = 20.dp,
+            topStart = 6.dp,
+            bottomStart = 6.dp
+        )
 
-        Box(
+        Row(
             modifier = Modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
-                .background(color = bubbleColor, shape = RoundedCornerShape(8.dp))
-                .align(alignment)
+                .padding(horizontal = 8.dp, vertical = 2.dp)
+                .align(alignment),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            if (!isCurrentUser) {
+                Image(
+                    painter = painterResource(id = R.drawable.user_avatar),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
             Text(
                 text = message.message,
                 color = Color.White,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier
+                    .background(color = bubbleColor, shape = shape)
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
             )
         }
     }

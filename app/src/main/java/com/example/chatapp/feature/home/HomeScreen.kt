@@ -5,17 +5,24 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -30,10 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,38 +71,54 @@ fun HomeScreen(navController: NavController) {
                     color = Color.White
                 )
             }
-        }
+        },
+        containerColor = Color.Black
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .background(color = Color.White)
-                .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
             LazyColumn {
+                item {
+                    Text(
+                        "Message",
+                        color = Color.Gray,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = "",
+                        onValueChange = {},
+                        placeholder = { Text("Search...") },
+                        shape = RoundedCornerShape(28.dp),
+                        textStyle = TextStyle(color = Color.LightGray),
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 8.dp)
+                    )
+                }
+
                 items(channels.value) { channel ->
                     Column {
-                        Text(
-                            channel.name,
-                            color = Color.Black,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(Color.Red.copy(alpha = 0.3f))
-                                .padding(16.dp)
-                                .clickable {
-                                    navController.navigate("chat/${channel.id}")
-                                }
-                        )
+                        ChannelItem(channel.name, onClickItem = { navController.navigate("chat/${channel.id}") })
                     }
                 }
             }
         }
     }
 
-    if(addChannel) {
+    if (addChannel) {
         ModalBottomSheet(
             onDismissRequest = { addChannel = false },
             sheetState = sheetState
@@ -103,6 +128,40 @@ fun HomeScreen(navController: NavController) {
                 addChannel = false
             }
         }
+    }
+}
+
+@Composable
+fun ChannelItem(
+    channelName: String,
+    onClickItem: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(color = Color.DarkGray.copy(alpha = 0.4f))
+            .clickable { onClickItem() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .padding(start = 10.dp)
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(color = Color.Yellow.copy(alpha = 0.3f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = channelName[0].uppercase(),
+                fontSize = 24.sp,
+                color = Color.White,
+            )
+        }
+
+        Text(text = channelName, color = Color.White, modifier = Modifier.padding(8.dp))
     }
 }
 
