@@ -12,11 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.chatapp.feature.auth.signin.SignInScreen
 import com.example.chatapp.feature.auth.signup.SignUpScreen
+import com.example.chatapp.feature.chat.ChatScreen
 import com.example.chatapp.feature.home.HomeScreen
 import com.example.chatapp.ui.theme.ChatAppTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -44,7 +47,7 @@ fun MainApp() {
     ) {
         val navController = rememberNavController()
         val currentUser = FirebaseAuth.getInstance().currentUser
-        val start = if(currentUser != null) "home" else "login"
+        val start = if (currentUser != null) "home" else "login"
 
         NavHost(navController = navController, startDestination = start) {
             composable("login") {
@@ -57,6 +60,16 @@ fun MainApp() {
 
             composable("home") {
                 HomeScreen(navController)
+            }
+
+            composable(
+                "chat/{channelId}",
+                arguments = listOf(
+                    navArgument("channelId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val channelId = backStackEntry.arguments?.getString("channelId") ?: ""
+                ChatScreen(navController = navController, channelId = channelId)
             }
         }
     }
