@@ -1,5 +1,6 @@
 package com.example.chatapp.feature.chat
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.chatapp.model.Message
 import com.google.firebase.Firebase
@@ -8,6 +9,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import com.google.firebase.storage.storage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +23,7 @@ class ChatViewModel @Inject constructor() : ViewModel() {
     val messages = _messages.asStateFlow()
     private val db = Firebase.database
 
-    fun sendMessage(channelId: String, messageText: String) {
+    fun sendMessage(channelId: String, messageText: String?, image: String? = null) {
         val message = Message (
             id = db.reference.push().key ?: UUID.randomUUID().toString(),
             senderId = Firebase.auth.currentUser?.uid ?: "",
@@ -29,10 +31,28 @@ class ChatViewModel @Inject constructor() : ViewModel() {
             createAt = System.currentTimeMillis(),
             senderName = Firebase.auth.currentUser?.displayName ?: "",
             senderImage = null,
-            imageUrl = null
+            imageUrl = image
         )
 
         db.reference.child("messages").child(channelId).push().setValue(message)
+    }
+
+    fun sendImageMessage(uri: Uri, channelId: String) {
+        val imageRef = Firebase.storage.reference.child("images/${UUID.randomUUID()}")
+        imageRef.putFile(uri)
+            .continueWithTask { task ->
+                if(!task.isSuccessful) {
+                    task.exception?.let {
+                        throw it
+                    }
+                }
+                imageRef.downloadUrl
+            }.addOnCompleteListener { task ->
+                if(task.isSuccessful) {
+                    val downloadUri = task.result
+                    sendMessage(channelId, null, downloadUri.toString())
+                }
+            }
     }
 
     fun listenForMessage(channelId: String) {

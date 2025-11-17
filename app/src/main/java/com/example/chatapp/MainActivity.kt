@@ -5,13 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,7 +20,6 @@ import com.example.chatapp.feature.home.HomeScreen
 import com.example.chatapp.ui.theme.ChatAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -63,13 +58,15 @@ fun MainApp() {
             }
 
             composable(
-                "chat/{channelId}",
+                "chat/{channelId}&{channelName}",
                 arguments = listOf(
-                    navArgument("channelId") { type = NavType.StringType }
+                    navArgument("channelId") { type = NavType.StringType },
+                    navArgument("channelName") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
                 val channelId = backStackEntry.arguments?.getString("channelId") ?: ""
-                ChatScreen(navController = navController, channelId = channelId)
+                val channelName = backStackEntry.arguments?.getString("channelName") ?: ""
+                ChatScreen(navController = navController, channelId = channelId, channelName = channelName)
             }
         }
     }

@@ -111,7 +111,11 @@ fun HomeScreen(navController: NavController) {
 
                 items(channels.value) { channel ->
                     Column {
-                        ChannelItem(channel.name, onClickItem = { navController.navigate("chat/${channel.id}") })
+                        ChannelItem(
+                            channel.name,
+                            onClickItem = { navController.navigate("chat/${channel.id}&${channel.name}") },
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
                     }
                 }
             }
@@ -134,11 +138,11 @@ fun HomeScreen(navController: NavController) {
 @Composable
 fun ChannelItem(
     channelName: String,
-    onClickItem: () -> Unit
+    onClickItem: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
-            .padding(vertical = 4.dp)
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(color = Color.DarkGray.copy(alpha = 0.4f))

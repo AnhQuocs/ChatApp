@@ -3,7 +3,7 @@ package com.example.chatapp.model
 data class Message (
     val id: String = "",
     val senderId: String = "",
-    val message: String = "",
+    val message: String? = "",
     val createAt: Long = System.currentTimeMillis(),
     val senderName: String = "",
     val senderImage: String? = null,
