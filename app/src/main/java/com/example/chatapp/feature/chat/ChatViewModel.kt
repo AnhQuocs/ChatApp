@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.chatapp.R
 import com.example.chatapp.model.Message
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.Firebase
@@ -145,9 +144,16 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun getAccessToken(): String {
-        val inputStream = context.resources.openRawResource(R.raw.chatapp_key)
-        val googleCred = GoogleCredentials.fromStream(inputStream)
-            .createScoped(listOf("https://www.googleapis.com/auth/firebase.messaging"))
-        return googleCred.refreshAccessToken().tokenValue
+        val inputStream = context.assets.open("chatapp_key.json")
+
+        val googleCred = GoogleCredentials
+            .fromStream(inputStream)
+            .createScoped(
+                listOf("https://www.googleapis.com/auth/firebase.messaging")
+            )
+
+        googleCred.refreshIfExpired()
+
+        return googleCred.accessToken.tokenValue
     }
 }
